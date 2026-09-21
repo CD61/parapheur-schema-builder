@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+
+  <style>
+	@media print {	
+	
+		body {
+			width: 100%;
+		}
+		* {
+			-webkit-print-color-adjust: exact !important;
+			print-color-adjust: exact !important;
+		}
+		
+		body {
+			margin : 0;
+		}
+		
+		html, body {
+			margin: 0;
+			padding: 0;
+		}
+			
+		
+		html, body, #exportZone {
+			background-color: #ffffff !important;
+		}
+		
+		.container {
+			display: none !important;
+		}
+
+		#exportZone,
+		#exportZone * {
+			visibility: visible;
+		}
+		
+		
+		#exportZone {
+			position: absolute;
+		}
+		
+		#graphPrint {
+		  overflow: auto;
+		  text-align: center;
+		  min-height: 200px;
+		}
+
+		#graphPrint svg {
+		  max-width: 100%;
+		}
+		
+		
+		.exportTable {
+			border-spacing:0px;
+			width: 100%;
+			border-collapse: collapse;
+			border:0;
+			box-sizing: border-box;
+			table-layout: fixed;
+			max-width: 100%;
+			
+		}
+		
+		.exportTable td,
+		.exportTable th {
+			padding-left: 10px;
+			text-align: left;
+			border-spacing:0px;
+			border: 1px solid #aaaaaa;
+			box-sizing: border-box;
+		}
+		
+		.exportTable tr {
+			height: 30px;
+		}
+			
+		.exportTable .tableHeadRow {
+			background-color: #369C66;
+			color: white;
+			font-weight: bold;
+		}
+		
+		.exportTable .tableTitle {
+			background-color: #10268C;
+			color: white;
+			font-weight: bold;
+			text-align: center !important;
+		}
+		
+		.exportTable tr td:first-child {
+			background-color: #DEEAF6;
+		}
+	}
+	</style>
+	
+	
+	<style>
+    body {
+		font-family: Arial, sans-serif;
+		background: #f5f5f5;
+		margin: 0;
+		padding: 30px;
+		display: grid;
+		grid-template-rows: 1fr auto; /* 1fr pour le container, auto pour le footer */
+		grid-template-columns: 1fr;
+		gap: 20px;
+		align-items: start;
+		justify-items: center;
+		font-family: Arial, sans-serif;
+		font-size: 18px;
+    }
+
+    h2 {
+		margin-top: 0;
+		font-size: 1.5rem;
+    }
+
+	table {
+		width: 100%;
+	}
+
+    textarea {
+		width: 100%;
+		height: 220px;
+		padding: 10px;
+		border: 1px solid #d0d7de;
+		border-radius: 8px;
+		box-sizing: border-box;
+		font-size: 1.2rem;
+    }
+	
+	input {
+		width: 100%;
+		height: 20px;
+		padding: 10px;
+		box-sizing: border-box;
+	}
+
+	
+	input[type="text"] {
+		width: 100%;
+		min-height: 50px;
+		padding: 10px 5px;
+		font-size: 1.2rem;
+
+		border: 1px solid #d0d7de;
+		border-radius: 8px;
+
+		background-color: #fff;
+		color: #24292f;
+
+		box-sizing: border-box;
+
+		transition:
+			border-color 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	input[type="text"]:focus {
+		outline: none;
+		border-color: #1976d2;
+		box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+	}
+
+	input[type="text"]:disabled {
+		background-color: #efefef;
+		cursor: not-allowed;
+	}
+	
+	input[type="text"]:hover {
+		border-color: #9aa4af;
+	}
+
+    button {
+		padding: 10px 18px;
+		border: none;
+		border-radius: 6px;
+		background: #1976d2;
+		color: white;
+		cursor: pointer;
+		font-size: 14px;
+    }
+
+    button:hover {
+		background: #1259a7;
+    }
+	
+	button:disabled {
+		background: #cccccc;
+		cursor: not-allowed;
+	}
+	
+	th {
+		text-align: left;
+	}
+	
+	.exportTable {
+			border-spacing:0px;
+			border: 1px solid black;
+			width: 100%
+
+	}
+	
+	.exportTable td, th {
+		padding-left: 10px;
+	}
+	
+	.exportTable tr {
+		height: 30px;
+	}
+		
+	.exportTable .tableHeadRow {
+		background-color: #369C66;
+		color: white;
+		font-weight: bold;
+		border: 1px solid black;
+		
+	}
+	
+	.exportTable .tableTitle {
+		background-color: #10268C;
+		color: white;
+		font-weight: bold;
+		text-align: center !important;
+	}
+	
+	.exportTable tr td:first-child {
+		background-color: #DEEAF6;
+	}
+	
+
+	
+	.container {
+		display: grid;
+		grid-template-columns: 1fr 1fr; /* Deux colonnes de même largeur */
+		gap: 20px;
+		width: 100%;
+		max-width: 1400px; /* Largeur max pour éviter l'étirement */
+		box-sizing: border-box;
+	}
+	
+	.column-container {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 20px;
+	  min-width: 0; /* Évite les débordements */
+	}
+
+    .panel {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+	  box-sizing: border-box;
+    }
+
+    .buttons {
+		margin-top: 15px;
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+    }
+
+
+	#exportTitle {
+		color: #2E74B5;
+		text-align: center;
+		text-decoration: underline;
+	}
+
+    #mermaidCode {
+      background: #1e1e1e;
+      color: #dcdcdc;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    #graph {
+      overflow: auto;
+      text-align: center;
+      min-height: 200px;
+    }
+
+    #graph svg {
+      max-width: 100%;
+    }
+	
+	.panel-header {
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
+	  margin-bottom: 15px;
+	}
+
+	.copy-btn {
+	  background: #444;
+	  font-size: 12px;
+	  padding: 6px 10px;
+	}
+
+	.copy-btn:hover {
+	  background: #222;
+	}
+
+	
+	footer {
+		width: 100%;
+		max-width: 1400px; /* Même largeur max que le container */
+		box-sizing: border-box;
+		text-align: center;
+		color: #666;
+		font-size: 1.1rem;
+		padding: 15px 0;
+	}
+
+	footer span {
+	  margin: 0 6px;
+	}
+
+	footer a {
+	  color: #1976d2;
+	  text-decoration: none;
+	}
+
+	footer a:hover {
+	  text-decoration: underline;
+}
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+	<div class="column-container">
+		<div class="panel">
+			<h2>Saisie de l'arborescence</h2>
+
+			<textarea id="inputDSL">
+BUR0153
+	CIR0230
+		BUR0158
+			BUR0156
+	CIR0229
+		BUR0158
+			</textarea>
+
+			<div class="buttons">
+				<button onclick="render()">Générer le Schéma</button>
+			</div>
+		</div>
+
+		<div class="panel">
+			<div class="panel-header">
+				<h2>Code Mermaid</h2>
+
+				<button class="copy-btn" onclick="copyMermaidCode()">
+				📋 Copier
+				</button>
+			</div>
+
+			<details>
+			<summary style="cursor:pointer; margin-bottom:10px; color:#444;">
+			  Afficher / masquer le code
+			</summary>
+
+			<pre id="mermaidCode"></pre>
+			</details>
+		</div>
+
+		<div class="panel">
+			<h2>Prévisualisation du graph</h2>
+
+			<div id="graph"></div>
+			<div class="buttons">
+				<button id="exportSchemaBtn" onclick="exportSVG()" disabled>Exporter en .SVG</button>
+			</div>
+		</div>
+	</div>
+	<div class="column-container">
+		<div class ="panel">
+			<h2>Construction du référentiel </h2>
+			<form id="table_form">
+				<table id="tableEditor">
+					<colgroup>
+						<col style="width: 25%;">
+						<col style="width: 75%;">
+					</colgroup>
+					<thead>
+						<tr class="tableTitle">
+							<th colspan="2"><h3>Référentiel</h3></th>
+						</tr>
+						<tr class="tableHeadRow">
+							<th>Circuits</th>
+							<th>Sous-type</th>
+						</tr>
+					</thead>
+					<tbody id="tableCirBody">
+						<tr>
+							<td>CIR0230</td>
+							<td><input type="text" disabled></td>
+						</tr>
+					</tbody>
+					<thead>
+						<tr class="tableHeadRow">
+							<th>Bureau</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody id="tableBurBody">
+						<tr>
+							<td>BUR0153</td>
+							<td><input type="text" disabled></td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<div class="buttons">
+					<button id="generateTableBTN" type="submit" disabled>Générer le tableau final</button>
+				</div>
+			</form>
+		</div>
+		
+		<div class ="panel">
+			<h2>Prévisualisation du tableau</h2>
+			<table id="tableFinal" class="exportTable">
+			</table>
+		</div>
+		
+		<div class ="panel">
+			<h2>Dernière étape </h2>
+			<label for="docTitle">Titre: </label>
+			<input type="text" id="docTitle" placeholder="61 - Departement de l'Orne"/>
+			<div class="buttons">
+				<button id="printDocBtn" onclick="printDoc()" disabled>
+					Générer le document complet
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="exportZone">
+	<h1 id="exportTitle"></h1>
+	<br><br>
+</div>
+
+
+<script>
+let mermaidCode = ""
+
+mermaid.initialize({
+  startOnLoad: false,
+  flowchart: {
+    htmlLabels: true,
+    curve: "linear",
+	arrowMarkerAbsolute: false
+  }
+});
+
+
+document.getElementById("table_form").addEventListener("submit", (e) => {
+    e.preventDefault(); // pas de reload
+    generateTableFinal();
+});
+
+document.querySelector("#inputDSL").addEventListener("keydown", function (e) {
+
+    if (e.key === "Tab") {
+        e.preventDefault();
+
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+
+        // 🔹 SHIFT + TAB = enlever indentation
+        if (e.shiftKey) {
+            const before = this.value.substring(0, start);
+
+            // si on est juste après une tabulation → on la supprime
+            if (before.endsWith("\t")) {
+                this.value =
+                    this.value.substring(0, start - 1) +
+                    this.value.substring(end);
+
+                this.selectionStart = this.selectionEnd = start - 1;
+            }
+
+        } else {
+            // 🔹 TAB normal = insertion
+            this.value =
+                this.value.substring(0, start) +
+                "\t" +
+                this.value.substring(end);
+
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    }
+});
+
+
+window.addEventListener("beforeprint", () => {
+    document.getElementById("exportZone").style.display = "block";
+});
+
+window.addEventListener("afterprint", () => {
+    document.getElementById("exportZone").style.display = "none";
+});
+
+function toMermaid(root) {
+
+	const theme = "---\nconfig:\n  theme: 'base'\n  themeVariables:\n    primaryBorderColor : '#4281B4'\n    primaryColor : '#D5EAFA'\n---\n"
+
+	const output = [theme, "flowchart TD\n"]
+	
+	output.push("A[Grand Angle];\n")
+	
+	const rootMermaid = nodeToMermaid(root)
+	output.push("A e0@--> " + rootMermaid + ";\n")
+	
+	root.children.forEach(child => {
+		walk(child, rootMermaid, null, output)
+	});
+
+	
+	output.push("classDef redText fill:transparent,stroke:transparent,color:red;\n")
+	output.push("class A redText;\n")
+	output.push("classDef redArrow stroke:#ff0000,color:#ff0000,fill:#ff0000,stroke-width:3px;\n")
+	output.push("class e0 redArrow;\n")
+	return output.join("")
+}
+
+/*
+Parcours l'arborescence
+*/
+function walk(node, parent, edgeLabel, output) {
+
+	let newParent = parent
+	let newEdgeLabel = null
+
+	
+    if (node.name.startsWith("CIR")) {
+        newEdgeLabel = "|" + node.name + "|"
+    }
+
+    else if (node.name.startsWith("BUR")) {
+
+        const currentNodeMermaid = nodeToMermaid(node)
+
+        // création du lien avec le parent uniquement
+        if (parent !== null) {
+            output.push(
+                `${parent} -->${edgeLabel ?? ""} ${currentNodeMermaid};\n`
+            )
+        }
+
+        // mise à jour contexte
+        newParent = currentNodeMermaid
+		
+		if (!node.children || node.children.length === 0) {
+			const ga_final_nodeID = "A_"+node.id
+			let edge_id = "e"+node.id
+			output.push(`${currentNodeMermaid} ${edge_id}@--> ${ga_final_nodeID}[Grand Angle];\n`)
+			output.push(`class ${ga_final_nodeID} redText;\n`)
+			output.push(`class ${edge_id} redArrow;\n`)
+		}
+    }
+
+    for (const child of node.children) {
+        walk(child, newParent, newEdgeLabel, output)
+    }
+}
+
+function nodeToMermaid(node) {
+	return node.id + "["+node.name+"]"
+}
+
+function parseDSL(lines) {
+
+	const breadcrumbs = []
+
+	lines.forEach(line => {
+		const node = lineToNode(line)
+		
+		if (breadcrumbs.length > 0) { //Si on est pas à la racine
+			//on enlève les noeud voisins précédent (ceux au même niveau et sous le même parent)
+			while (breadcrumbs.length >= node.level + 1) {
+				breadcrumbs.pop() 
+			}
+			
+			const parent = breadcrumbs[breadcrumbs.length-1]
+			node.parent = parent
+			parent.children.push(node)
+		}
+		breadcrumbs.push(node)
+	});
+	
+	return breadcrumbs[0] //return root
+}
+
+
+class Node {
+	constructor(name, level) {
+		this.id = crypto.randomUUID()
+		this.name = name
+		this.level = level
+		this.children = []
+		this.parent = null
+	}
+}
+
+function lineToNode(line) {
+	const level = getIndentLevel(line)
+	const name = line.trim()
+	return new Node(name, level);
+}
+
+/*
+Fonction pour séparer le texte sur les saut de ligne et retirer les lignes vides
+*/
+function textToArray(text) {
+	return text
+		.split('\n')
+		.filter(line => line.trim() !== '');
+}
+
+function normalizeIndentation(text) {
+	return text.replace(/\t/g, '    ');
+
+}
+
+function getIndentLevel(line) {
+	return (line.match(/^ */)[0].length)/4;
+}
+
+
+//---------------------------------------------------------------
+// Click sur le bouton d'export SVG
+function exportSVG() {
+	const graph = document.getElementById("graph");
+
+	const svg = graph.querySelector("svg");
+
+	if (!svg) {
+	  alert("Aucun graphe généré");
+	  return;
+	}
+
+	const svgData = new XMLSerializer().serializeToString(svg);
+
+	const blob = new Blob([svgData], {
+	  type: "image/svg+xml;charset=utf-8"
+	});
+
+	const url = URL.createObjectURL(blob);
+
+	const link = document.createElement("a");
+
+	link.href = url;
+	link.download = "diagram.svg";
+
+	document.body.appendChild(link);
+
+	link.click();
+
+	document.body.removeChild(link);
+
+	URL.revokeObjectURL(url);
+}
+
+
+// Click sur le bouton pour copier le code mermaid
+function copyMermaidCode() {
+
+  const text = document.getElementById("mermaidCode").innerText;
+
+  navigator.clipboard.writeText(text)
+	.then(() => {
+
+	  const btn = document.querySelector(".copy-btn");
+
+	  const oldText = btn.innerText;
+
+	  btn.innerText = "✅ Copié";
+
+	  setTimeout(() => {
+		btn.innerText = oldText;
+	  }, 1500);
+	});
+}
+
+// Click sur le bouton "render"
+function render() {
+	const input = document.getElementById("inputDSL").value;
+	document.getElementById("tableFinal").innerHTML = "";
+	
+	const normalizedText = normalizeIndentation(input);
+	const textLines = textToArray(normalizedText);
+	
+	
+	const dictionary = getBurList(textLines);
+	generateTableForm(dictionary);
+	
+	generateMermaidSchema(textLines);
+}
+
+function generateMermaidSchema(textLines) {
+	const mermaidCodeContainer = document.getElementById("mermaidCode");
+	const graph = document.getElementById("graph");
+	
+	const exportSvgBtn = document.getElementById("exportSchemaBtn");
+	
+	//reinitialise
+	exportSvgBtn.setAttribute("disabled", "");
+	graph.innerHTML = "";
+	mermaidCodeContainer.innerText = "";
+	
+	const dsl = parseDSL(textLines);
+	mermaidCode = toMermaid(dsl);
+
+	mermaidCodeContainer.innerText = mermaidCode;
+
+	// Génération du SVG
+	const id = "graph-" + Date.now();
+
+	mermaid.render(id, mermaidCode)
+	.then(({ svg }) => {
+		graph.innerHTML = svg;
+		exportSvgBtn.removeAttribute('disabled');
+	});
+}
+
+/**
+Get list of BUR
+*/
+
+function getBurList(lines){
+	const resultDict = {};
+	
+	lines.forEach(line => {
+		const trimedLine = line.trim();
+		resultDict[trimedLine] = "";
+	});
+
+	return resultDict;
+}
+
+function generateTableForm(dictionary) {
+	let bur_output = "";
+	let cir_output = "";
+	
+	Object.keys(dictionary).forEach(key => {
+		let row = `<tr><td>${key}</td>\n<td><input type="text" required>\n</td></tr>\n`;
+		if (key.startsWith("BUR")) {
+			bur_output += row;
+		} else if (key.startsWith("CIR")) {
+			cir_output += row;
+		}
+	});
+	
+	const tableBurBody = document.querySelector("#tableBurBody");
+	tableBurBody.innerHTML = bur_output;
+	
+	const tableCirBody = document.querySelector("#tableCirBody");
+	tableCirBody.innerHTML = cir_output;
+	
+
+	const tableGenerationBtn = document.getElementById("generateTableBTN");
+	tableGenerationBtn.removeAttribute('disabled');
+}
+
+/**
+Génère le tableau final
+*/
+function generateTableFinal(){
+	document.getElementById("tableFinal").innerHTML = tableToText();
+	document.getElementById("printDocBtn").removeAttribute('disabled');
+}
+
+
+/**
+Généré par chatGPT
+*/
+function tableToText() {
+    const table = document.getElementById("tableEditor");
+    const clone = table.cloneNode(true);
+
+    clone.querySelectorAll("input").forEach(input => {
+        const td = input.parentElement;
+        td.textContent = input.value;
+    });
+
+    return clone.innerHTML;
+}
+
+
+function printDoc() {
+	// Set title in the export div
+	const title = document.getElementById("docTitle").value;
+	document.getElementById("exportTitle").textContent = document.getElementById("docTitle").value;
+
+	
+	const exportZone = document.getElementById("exportZone");
+	// Nettoyage d'un éventuel précédent export
+    exportZone.innerHTML = `<h1 id="exportTitle">${title}</h1><br><br>`;
+	
+	//Add table
+	const tableClone = document.getElementById("tableFinal").cloneNode(true);
+	tableClone.removeAttribute("id");
+	exportZone.appendChild(tableClone);
+	
+	//Add space between graph & table
+	exportZone.appendChild(document.createElement("br"));
+	exportZone.appendChild(document.createElement("br"));
+	
+	//Add Graph
+	
+	// Génération du SVG
+	const graphPrint = document.createElement("div");
+	graphPrint.setAttribute("id", "graphPrint");
+	
+	const id = "graph-print" + Date.now();
+	
+	mermaid.render(id, mermaidCode)
+	.then(({ svg }) => {
+		graphPrint.innerHTML = svg;
+	});
+	exportZone.appendChild(graphPrint);
+	
+    setTimeout(() => {
+        window.print();
+    }, 500);
+}
+
+</script>
+	<footer>
+	  <span>Mermaid DSL Renderer</span>
+	  <span>• v0.2.4</span>
+	  <span>• Owner: Conseil départemental de l'Orne
+	  <span>• Author: Bourgmayer Vincent</span>
+	  <span>• <a href="https://mermaid.js.org/syntax/flowchart.html" target="_blank">documentation Mermaid</a></span>
+	</footer>
+</body>
+
+</html>
